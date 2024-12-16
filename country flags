@@ -1,0 +1,40 @@
+import requests
+from PIL import Image
+from io import BytesIO
+
+def get_country_flag(country_name):
+    url = f"https://restcountries.com/v3.1/name/{country_name}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        if data and isinstance(data, list):
+            flag_url = data[0].get("flags", {}).get("png", None)
+            if flag_url:
+                return flag_url
+        print("پرچمی یافت نشد.")
+        return None
+    else:
+        print(f"خطا در دریافت اطلاعات کشور: {response.status_code}")
+        return None
+
+
+def show_flag(flag_url):
+    if flag_url:
+        response = requests.get(flag_url)
+        if response.status_code == 200:
+            image = Image.open(BytesIO(response.content))
+            image.show()
+        else:
+            print("خطا در دریافت تصویر پرچم.")
+    else:
+        print("آدرس پرچم موجود نیست.")
+
+
+if __name__ == "__main__":
+    country = input("نام کشور را وارد کنید: ").strip()
+    print("\nدریافت پرچم...")
+    flag_url = get_country_flag(country)
+    if flag_url:
+        print(f"آدرس پرچم: {flag_url}")
+        print("نمایش پرچم...")
+        show_flag(flag_url)
